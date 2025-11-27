@@ -1019,11 +1019,11 @@ export default function App() {
           
           {/* Modal Content */}
           <div className="relative z-10 w-full max-w-md mx-4 animate-fade-up">
-            <div className="tech-border bg-focus-surface rounded-xl p-8">
+            <div className="relative tech-border bg-focus-surface rounded-xl p-8">
               {/* Close button */}
               <button
                 onClick={() => setShowSignupGate(false)}
-                className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
+                className="absolute top-4 right-4 z-20 text-gray-500 hover:text-white transition-colors p-1"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
