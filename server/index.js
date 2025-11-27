@@ -4,6 +4,7 @@ import authRoutes from './routes/auth.js';
 import pathsRoutes from './routes/paths.js';
 import achievementsRoutes from './routes/achievements.js';
 import aiRoutes from './routes/ai.js';
+import statsRoutes from './routes/stats.js';
 import { apiLimiter, authLimiter, aiLimiter } from './middleware/rateLimiter.js';
 import config, { validateConfig } from './config.js';
 
@@ -27,6 +28,7 @@ app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/paths', pathsRoutes);
 app.use('/api/achievements', achievementsRoutes);
 app.use('/api/ai', aiLimiter, aiRoutes);
+app.use('/api/stats', statsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
