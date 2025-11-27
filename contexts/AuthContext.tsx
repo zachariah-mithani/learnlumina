@@ -24,7 +24,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('lumina_token'));
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('attentio_token'));
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,7 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Check auth status on mount
   useEffect(() => {
     const initAuth = async () => {
-      const storedToken = localStorage.getItem('lumina_token');
+      const storedToken = localStorage.getItem('attentio_token');
       
       if (storedToken) {
         try {
@@ -49,12 +49,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setToken(storedToken);
           } else {
             // Token invalid, clear it
-            localStorage.removeItem('lumina_token');
+            localStorage.removeItem('attentio_token');
             setToken(null);
           }
         } catch (err) {
           console.error('Auth init error:', err);
-          localStorage.removeItem('lumina_token');
+          localStorage.removeItem('attentio_token');
           setToken(null);
         }
       }
@@ -82,7 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error(data.error || 'Login failed');
       }
 
-      localStorage.setItem('lumina_token', data.token);
+      localStorage.setItem('attentio_token', data.token);
       setToken(data.token);
       setUser(data.user);
     } catch (err: any) {
@@ -110,7 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error(data.error || 'Registration failed');
       }
 
-      localStorage.setItem('lumina_token', data.token);
+      localStorage.setItem('attentio_token', data.token);
       setToken(data.token);
       setUser(data.user);
     } catch (err: any) {
@@ -122,7 +122,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('lumina_token');
+    localStorage.removeItem('attentio_token');
     setToken(null);
     setUser(null);
     setError(null);

@@ -27,7 +27,7 @@ async function callOpenRouter(prompt) {
       'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
       'Content-Type': 'application/json',
       'HTTP-Referer': 'https://learnlumina.xyz',
-      'X-Title': 'Lumina Focus Learning',
+      'X-Title': 'Attentio Focus Learning',
     },
     body: JSON.stringify({
       model: MODEL_ID,

@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Initialize database
-const db = new Database(join(__dirname, 'lumina.db'));
+const db = new Database(join(__dirname, 'attentio.db'));
 db.pragma('journal_mode = WAL');
 
 // Run schema

@@ -90,8 +90,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                 <ZapIcon className="w-6 h-6" />
               </div>
               <div>
-                <span className="text-xl font-bold tracking-tighter text-white">LUMINA</span>
-                <span className="text-[10px] tracking-[0.3em] text-emerald-500 font-mono block">SYSTEMS</span>
+                <span className="text-xl font-bold tracking-tighter text-white">ATTENTIO</span>
+                <span className="text-[10px] tracking-[0.3em] text-emerald-500 font-mono block">FOCUS</span>
               </div>
             </div>
             

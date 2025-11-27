@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'lumina-dev-secret-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || 'attentio-dev-secret-change-in-production';
 
 export const generateToken = (user) => {
   return jwt.sign(

@@ -49,7 +49,7 @@ app.use((err, req, res, next) => {
 app.listen(config.port, () => {
   console.log(`
   ╔═══════════════════════════════════════╗
-  ║     LUMINA SERVER INITIALIZED         ║
+  ║     ATTENTIO SERVER INITIALIZED         ║
   ╠═══════════════════════════════════════╣
   ║  → Port: ${config.port}                         ║
   ║  → Mode: ${config.isDev ? 'DEVELOPMENT' : 'PRODUCTION'}                 ║

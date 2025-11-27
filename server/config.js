@@ -23,7 +23,7 @@ export const config = {
     : (process.env.CORS_ORIGINS || 'https://learnlumina.xyz,https://www.learnlumina.xyz').split(',').filter(Boolean),
   
   // JWT
-  jwtSecret: process.env.JWT_SECRET || (isDev ? 'lumina-dev-secret' : undefined),
+  jwtSecret: process.env.JWT_SECRET || (isDev ? 'attentio-dev-secret' : undefined),
   jwtExpiresIn: '7d',
   
   // API Keys
@@ -50,7 +50,7 @@ export const validateConfig = () => {
     if (!config.jwtSecret) {
       errors.push('JWT_SECRET is required in production');
     }
-    if (config.jwtSecret === 'lumina-dev-secret') {
+    if (config.jwtSecret === 'attentio-dev-secret') {
       errors.push('JWT_SECRET must be changed from default in production');
     }
     if (!config.openRouterApiKey) {

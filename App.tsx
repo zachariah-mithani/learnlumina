@@ -617,8 +617,8 @@ export default function App() {
               <ZapIcon className="w-6 h-6" />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-bold tracking-tighter text-white leading-none">LUMINA</span>
-              <span className="text-[10px] tracking-[0.3em] text-emerald-500 font-mono">SYSTEMS</span>
+              <span className="text-xl font-bold tracking-tighter text-white leading-none">ATTENTIO</span>
+              <span className="text-[10px] tracking-[0.3em] text-emerald-500 font-mono">FOCUS</span>
             </div>
           </div>
           

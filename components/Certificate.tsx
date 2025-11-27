@@ -36,7 +36,7 @@ export const Certificate: React.FC<CertificateProps> = ({
     printWindow.document.write(`
       <html>
         <head>
-          <title>LearnLumina Certificate - ${topic}</title>
+          <title>Attentio Certificate - ${topic}</title>
           <style>
             @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Orbitron:wght@400;700;900&display=swap');
             
@@ -301,7 +301,7 @@ export const Certificate: React.FC<CertificateProps> = ({
     }, 250);
   };
 
-  const certificateId = `LUM-${Date.now().toString(36).toUpperCase()}`;
+  const certificateId = `ATT-${Date.now().toString(36).toUpperCase()}`;
 
   return (
     <div className="mt-12 animate-fade-up">
@@ -343,8 +343,8 @@ export const Certificate: React.FC<CertificateProps> = ({
                 <ZapIcon className="w-7 h-7" />
               </div>
               <div className="text-left">
-                <span className="text-2xl font-bold tracking-tighter text-white block leading-none">LUMINA</span>
-                <span className="text-[10px] tracking-[0.25em] text-emerald-500 font-mono">SYSTEMS</span>
+                <span className="text-2xl font-bold tracking-tighter text-white block leading-none">ATTENTIO</span>
+                <span className="text-[10px] tracking-[0.25em] text-emerald-500 font-mono">FOCUS</span>
               </div>
             </div>
 
@@ -401,7 +401,7 @@ export const Certificate: React.FC<CertificateProps> = ({
             </div>
             <div className="text-right">
               <div className="w-48 border-b border-emerald-500/50 mb-2" />
-              <div className="text-sm text-emerald-500 font-bold tracking-wider">LUMINA SYSTEMS</div>
+              <div className="text-sm text-emerald-500 font-bold tracking-wider">ATTENTIO</div>
               <div className="text-[10px] text-gray-500">Focus Learning Platform</div>
             </div>
           </div>

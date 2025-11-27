@@ -48,7 +48,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 <ZapIcon className="w-7 h-7" />
               </div>
               <div className="text-left">
-                <span className="text-2xl font-bold tracking-tighter text-white block leading-none">LUMINA</span>
+                <span className="text-2xl font-bold tracking-tighter text-white block leading-none">ATTENTIO</span>
                 <span className="text-[10px] tracking-[0.25em] text-red-500 font-mono">SYSTEM ERROR</span>
               </div>
             </div>
