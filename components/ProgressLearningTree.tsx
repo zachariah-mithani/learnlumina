@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { PathStage } from '../types';
 import { updatePathProgress, PathWithProgress, NewAchievement } from '../services/pathService';
-import { PenIcon, ArrowRightIcon, PlayCircleIcon, BookOpenIcon, MicIcon, ExternalLinkIcon } from './Icons';
+import { PenIcon } from './Icons';
 
 interface ProgressLearningTreeProps {
   pathId: number;
@@ -169,90 +169,97 @@ export const ProgressLearningTree: React.FC<ProgressLearningTreeProps> = ({
                   </p>
                 </div>
 
-                {/* Topics with checkboxes and resources */}
+                {/* Topics with checkboxes and embedded videos */}
                 <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl relative">
                   {stage.keyTopics.map((topic, topicIndex) => {
                     const topicName = typeof topic === 'string' ? topic : topic.name;
                     const resource = typeof topic === 'object' ? topic.resource : null;
+                    const hasVideo = resource?.videoId;
                     const isCompleted = isItemCompleted(stageIndex, 'topic', topicIndex);
                     const isUpdatingThis = updating === `${stageIndex}-topic-${topicIndex}`;
-
-                    const getResourceIcon = (type: string) => {
-                      switch(type) {
-                        case 'Video': return <PlayCircleIcon className="w-4 h-4" />;
-                        case 'Podcast': return <MicIcon className="w-4 h-4" />;
-                        default: return <BookOpenIcon className="w-4 h-4" />;
-                      }
-                    };
-                    const getResourceColor = (type: string) => {
-                      switch(type) {
-                        case 'Video': return 'bg-red-500/10 text-red-400 border-red-500/20';
-                        case 'Podcast': return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
-                        case 'Course': return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
-                        default: return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
-                      }
-                    };
 
                     return (
                       <div
                         key={topicIndex}
-                        className={`group relative w-full bg-focus-dim border rounded-md p-4 transition-all ${
+                        className={`group relative w-full bg-focus-dim border rounded-lg overflow-hidden transition-all ${
                           isCompleted 
                             ? 'border-emerald-500/50 bg-emerald-500/10' 
-                            : 'border-emerald-500/10 hover:border-emerald-500/40 hover:bg-emerald-500/5'
+                            : 'border-emerald-500/10 hover:border-emerald-500/40'
                         }`}
                       >
-                        {/* Topic header with checkbox */}
-                        <button
-                          onClick={() => handleToggleProgress(stageIndex, 'topic', topicIndex)}
-                          disabled={isUpdatingThis}
-                          className="flex items-center w-full text-left mb-3"
-                        >
-                          {/* Custom checkbox */}
-                          <div className={`w-5 h-5 rounded border-2 mr-3 flex items-center justify-center transition-all shrink-0 ${
-                            isCompleted 
-                              ? 'border-emerald-500 bg-emerald-500' 
-                              : 'border-emerald-500/30 group-hover:border-emerald-500/60'
-                          }`}>
-                            {isUpdatingThis ? (
-                              <div className="w-3 h-3 border border-black border-t-transparent rounded-full animate-spin" />
-                            ) : isCompleted ? (
-                              <svg className="w-3 h-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                              </svg>
-                            ) : null}
+                        {/* Video Embed */}
+                        {hasVideo && (
+                          <div className="relative w-full aspect-video bg-black">
+                            <iframe
+                              src={`https://www.youtube.com/embed/${resource.videoId}?rel=0`}
+                              title={resource.title}
+                              className="absolute inset-0 w-full h-full"
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
                           </div>
+                        )}
 
-                          <span className={`text-sm font-medium transition-colors ${
-                            isCompleted ? 'text-emerald-300 line-through opacity-70' : 'text-gray-300 group-hover:text-white'
-                          }`}>
-                            {topicName}
-                          </span>
-                        </button>
-
-                        {/* Resource link */}
-                        {resource && (
-                          <a
-                            href={resource.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={`flex items-center gap-2 p-2 rounded border ${getResourceColor(resource.type)} hover:opacity-80 transition-all`}
-                            onClick={(e) => e.stopPropagation()}
+                        <div className="p-4">
+                          {/* Topic header with checkbox */}
+                          <button
+                            onClick={() => handleToggleProgress(stageIndex, 'topic', topicIndex)}
+                            disabled={isUpdatingThis}
+                            className="flex items-center w-full text-left"
                           >
-                            <div className="shrink-0">
-                              {getResourceIcon(resource.type)}
+                            {/* Custom checkbox */}
+                            <div className={`w-5 h-5 rounded border-2 mr-3 flex items-center justify-center transition-all shrink-0 ${
+                              isCompleted 
+                                ? 'border-emerald-500 bg-emerald-500' 
+                                : 'border-emerald-500/30 group-hover:border-emerald-500/60'
+                            }`}>
+                              {isUpdatingThis ? (
+                                <div className="w-3 h-3 border border-black border-t-transparent rounded-full animate-spin" />
+                              ) : isCompleted ? (
+                                <svg className="w-3 h-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                </svg>
+                              ) : null}
                             </div>
-                            <div className="flex-grow min-w-0">
-                              <div className="text-xs font-medium text-gray-200 truncate">{resource.title}</div>
-                              <div className="flex items-center gap-2 text-[10px] text-gray-500 font-mono mt-0.5">
-                                <span>{resource.type}</span>
-                                <span>•</span>
-                                <span>{resource.durationMin}m</span>
+
+                            <span className={`text-sm font-medium transition-colors ${
+                              isCompleted ? 'text-emerald-300 line-through opacity-70' : 'text-gray-300 group-hover:text-white'
+                            }`}>
+                              {topicName}
+                            </span>
+                          </button>
+
+                          {/* Video metadata */}
+                          {resource && (
+                            <div className="mt-2 pt-2 border-t border-emerald-500/10">
+                              <a
+                                href={resource.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-gray-400 hover:text-emerald-400 transition-colors line-clamp-1"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {resource.title}
+                              </a>
+                              <div className="flex items-center gap-2 text-[10px] text-gray-500 font-mono mt-1">
+                                {resource.views !== '-' && <span>{resource.views}</span>}
+                                {resource.durationMin > 0 && (
+                                  <>
+                                    <span>•</span>
+                                    <span>{resource.durationMin}m</span>
+                                  </>
+                                )}
+                                {resource.description && (
+                                  <>
+                                    <span>•</span>
+                                    <span className="text-gray-600">{resource.description}</span>
+                                  </>
+                                )}
                               </div>
                             </div>
-                            <ExternalLinkIcon className="w-3 h-3 text-gray-500 shrink-0" />
-                          </a>
-                        )}
+                          )}
+                        </div>
                       </div>
                     );
                   })}

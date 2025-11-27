@@ -26,6 +26,10 @@ export interface Resource {
   viewCount: number; // Numeric for sorting
   publishedDate: string; // YYYY-MM-DD
   durationMin: number; // Minutes
+  
+  // Video-specific (for embedding)
+  videoId?: string | null;
+  thumbnailUrl?: string;
 }
 
 export interface KeyTopic {

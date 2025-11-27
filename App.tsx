@@ -195,61 +195,70 @@ const StageNode: React.FC<{ stage: PathStage, index: number, isLast: boolean }> 
 
         {/* Branching Nodes Container */}
         <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl relative">
-          {/* Sub-topic Nodes with Resources */}
+          {/* Sub-topic Nodes with Embedded Videos */}
           {stage.keyTopics.map((topic, i) => {
             const topicName = typeof topic === 'string' ? topic : topic.name;
             const resource = typeof topic === 'object' ? topic.resource : null;
-            const getResourceIcon = (type: string) => {
-              switch(type) {
-                case 'Video': return <PlayCircleIcon className="w-4 h-4" />;
-                case 'Podcast': return <MicIcon className="w-4 h-4" />;
-                default: return <BookOpenIcon className="w-4 h-4" />;
-              }
-            };
-            const getResourceColor = (type: string) => {
-              switch(type) {
-                case 'Video': return 'bg-red-500/10 text-red-400 border-red-500/20';
-                case 'Podcast': return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
-                case 'Course': return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
-                default: return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
-              }
-            };
+            const hasVideo = resource?.videoId;
             
             return (
               <div key={i} className="group relative flex flex-col">
                 {/* Visual Connector Line for Desktop */}
                 <div className="hidden md:block absolute -top-4 left-1/2 -translate-x-1/2 w-0.5 h-4 bg-emerald-500/20"></div>
 
-                {/* Topic Card */}
-                <div className="w-full bg-focus-dim border border-emerald-500/10 rounded-md p-4 hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-all">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500/50 group-hover:bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></span>
-                    <span className="text-[10px] text-emerald-500/40 font-mono">NODE {index + 1}.{i + 1}</span>
-                  </div>
-                  <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors block mb-3">{topicName}</span>
+                {/* Topic Card with Embedded Video */}
+                <div className="w-full bg-focus-dim border border-emerald-500/10 rounded-lg overflow-hidden hover:border-emerald-500/40 transition-all">
+                  {/* Video Embed */}
+                  {hasVideo && (
+                    <div className="relative w-full aspect-video bg-black">
+                      <iframe
+                        src={`https://www.youtube.com/embed/${resource.videoId}?rel=0`}
+                        title={resource.title}
+                        className="absolute inset-0 w-full h-full"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  )}
                   
-                  {/* Resource Link */}
-                  {resource && (
-                    <a
-                      href={resource.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`flex items-center gap-2 p-2 rounded border ${getResourceColor(resource.type)} hover:opacity-80 transition-all`}
-                    >
-                      <div className="shrink-0">
-                        {getResourceIcon(resource.type)}
-                      </div>
-                      <div className="flex-grow min-w-0">
-                        <div className="text-xs font-medium text-gray-200 truncate">{resource.title}</div>
-                        <div className="flex items-center gap-2 text-[10px] text-gray-500 font-mono mt-0.5">
-                          <span>{resource.type}</span>
-                          <span>•</span>
-                          <span>{resource.durationMin}m</span>
+                  {/* Topic Info */}
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500/50 group-hover:bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></span>
+                      <span className="text-[10px] text-emerald-500/40 font-mono">NODE {index + 1}.{i + 1}</span>
+                    </div>
+                    <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors block">{topicName}</span>
+                    
+                    {/* Video metadata */}
+                    {resource && (
+                      <div className="mt-2 pt-2 border-t border-emerald-500/10">
+                        <a
+                          href={resource.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-gray-400 hover:text-emerald-400 transition-colors line-clamp-1"
+                        >
+                          {resource.title}
+                        </a>
+                        <div className="flex items-center gap-2 text-[10px] text-gray-500 font-mono mt-1">
+                          {resource.views !== '-' && <span>{resource.views}</span>}
+                          {resource.durationMin > 0 && (
+                            <>
+                              <span>•</span>
+                              <span>{resource.durationMin}m</span>
+                            </>
+                          )}
+                          {resource.description && (
+                            <>
+                              <span>•</span>
+                              <span className="text-gray-600">{resource.description}</span>
+                            </>
+                          )}
                         </div>
                       </div>
-                      <ExternalLinkIcon className="w-3 h-3 text-gray-500 shrink-0" />
-                    </a>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
             );

@@ -151,44 +151,99 @@ Return ONLY the JSON array, no other text.`;
   }
 });
 
+// Helper to search YouTube for a single video
+async function searchYouTubeVideo(query) {
+  if (!YOUTUBE_API_KEY) return null;
+  
+  try {
+    // Search for educational videos
+    const searchParams = new URLSearchParams({
+      part: 'snippet',
+      q: `${query} tutorial OR explained OR learn`,
+      type: 'video',
+      maxResults: '1',
+      order: 'relevance',
+      videoDuration: 'medium',
+      videoEmbeddable: 'true',
+      key: YOUTUBE_API_KEY,
+    });
+
+    const searchResponse = await fetch(`${YOUTUBE_SEARCH_URL}?${searchParams}`);
+    if (!searchResponse.ok) return null;
+
+    const searchData = await searchResponse.json();
+    if (!searchData.items || searchData.items.length === 0) return null;
+
+    const videoId = searchData.items[0].id.videoId;
+
+    // Get video details
+    const videosParams = new URLSearchParams({
+      part: 'contentDetails,statistics,snippet',
+      id: videoId,
+      key: YOUTUBE_API_KEY,
+    });
+
+    const videosResponse = await fetch(`${YOUTUBE_VIDEOS_URL}?${videosParams}`);
+    if (!videosResponse.ok) return null;
+
+    const videosData = await videosResponse.json();
+    if (!videosData.items || videosData.items.length === 0) return null;
+
+    const item = videosData.items[0];
+    
+    // Parse duration (PT1H2M3S -> minutes)
+    const durationMatch = item.contentDetails.duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    const hours = parseInt(durationMatch?.[1] || '0', 10);
+    const minutes = parseInt(durationMatch?.[2] || '0', 10);
+    const seconds = parseInt(durationMatch?.[3] || '0', 10);
+    const durationMin = hours * 60 + minutes + Math.ceil(seconds / 60);
+
+    // Format view count
+    const viewCount = parseInt(item.statistics.viewCount || '0', 10);
+    let views;
+    if (viewCount >= 1000000) views = `${(viewCount / 1000000).toFixed(1)}M views`;
+    else if (viewCount >= 1000) views = `${(viewCount / 1000).toFixed(1)}K views`;
+    else views = `${viewCount} views`;
+
+    return {
+      title: item.snippet.title,
+      type: 'Video',
+      description: item.snippet.channelTitle,
+      url: `https://www.youtube.com/watch?v=${videoId}`,
+      videoId: videoId,
+      views,
+      viewCount,
+      publishedDate: item.snippet.publishedAt.split('T')[0],
+      durationMin,
+      thumbnailUrl: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.medium?.url,
+    };
+  } catch (error) {
+    console.error('YouTube search error for:', query, error);
+    return null;
+  }
+}
+
 // POST /api/ai/learning-path - Generate learning path (with stricter rate limit)
 router.post('/learning-path', pathGenerationLimiter, validateTopic, async (req, res) => {
   try {
     const { topic } = req.body;
 
+    // Step 1: Generate learning path structure with AI
     const prompt = `Create a comprehensive, structured learning path for "${topic}".
   
   DYNAMIC LENGTH INSTRUCTION:
-  - If the topic is BROAD (e.g., "Computer Science", "History", "Physics"), generate 5-7 stages to cover it properly.
+  - If the topic is BROAD (e.g., "Computer Science", "History", "Physics"), generate 5-7 stages.
   - If the topic is SPECIFIC (e.g., "React Hooks", "Making Sourdough"), generate 3-4 stages.
-  
-  CRITICAL: Each keyTopic MUST have ONE specific learning resource (Video, Course, Article, or Podcast).
 
   Return ONLY a valid JSON array of objects, each containing:
   - stageName (string): e.g., "Foundations", "Core Concepts", "Advanced Techniques"
   - description (string): brief description of this stage
   - goal (string): learning goal for this stage
-  - keyTopics (array of objects): 3-5 key topics, EACH with its own resource:
-    - name (string): the topic name (e.g., "History of Robotics")
-    - resource (object): ONE learning resource for THIS specific topic:
-      - title: Resource Title (be specific, e.g., "MIT OpenCourseWare: Introduction to Robotics")
-      - type: "Video" or "Course" or "Article" or "Podcast"
-      - description: Brief reason why this resource is perfect for learning this topic
-      - url: "https://actual-url.com" (Use real, stable URLs - YouTube, Coursera, edX, MIT OCW, Khan Academy, MDN, Wikipedia, official docs)
-      - views: "1M views" (estimate)
-      - viewCount: 1000000 (estimate number)
-      - publishedDate: "2024-01-01" (estimate)
-      - durationMin: 15 (estimate in minutes)
+  - keyTopics (array of strings): 3-4 specific topic names to learn (these will be used to search for YouTube videos)
   - suggestedProject (string): a hands-on project for this stage
 
-  RESOURCE URL RULES:
-  - YouTube: https://www.youtube.com/watch?v=VIDEO_ID
-  - Coursera: https://www.coursera.org/learn/COURSE_NAME
-  - edX: https://www.edx.org/course/COURSE_NAME
-  - Khan Academy: https://www.khanacademy.org/...
-  - Wikipedia: https://en.wikipedia.org/wiki/TOPIC
-  - MDN: https://developer.mozilla.org/en-US/docs/...
-  - Official documentation sites
+  IMPORTANT: keyTopics should be specific, searchable terms that would return good educational YouTube videos.
+  Example for "Machine Learning": ["What is Machine Learning basics", "Linear Regression explained", "Neural Networks introduction"]
 
   Return ONLY the JSON array, no other text.`;
 
@@ -199,7 +254,38 @@ router.post('/learning-path', pathGenerationLimiter, validateTopic, async (req, 
     }
     
     const jsonText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    const path = JSON.parse(jsonText);
+    const rawPath = JSON.parse(jsonText);
+    
+    // Step 2: Fetch real YouTube videos for each topic
+    const path = await Promise.all(rawPath.map(async (stage) => {
+      const keyTopicsWithVideos = await Promise.all(
+        stage.keyTopics.map(async (topicName) => {
+          // Search YouTube for this specific topic
+          const searchQuery = `${topic} ${topicName}`;
+          const video = await searchYouTubeVideo(searchQuery);
+          
+          return {
+            name: topicName,
+            resource: video || {
+              title: `Search: ${topicName}`,
+              type: 'Video',
+              description: 'Search YouTube for this topic',
+              url: `https://www.youtube.com/results?search_query=${encodeURIComponent(topic + ' ' + topicName)}`,
+              videoId: null,
+              views: '-',
+              viewCount: 0,
+              publishedDate: '-',
+              durationMin: 0,
+            }
+          };
+        })
+      );
+      
+      return {
+        ...stage,
+        keyTopics: keyTopicsWithVideos,
+      };
+    }));
     
     // Track path generation
     await incrementStat('paths_generated');
