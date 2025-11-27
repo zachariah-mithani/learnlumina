@@ -866,7 +866,7 @@ export default function App() {
                 <div className="tech-border bg-focus-surface/50 rounded-lg p-6">
                   <MyPaths 
                     onContinuePath={handleContinuePath} 
-                    onClose={() => handleModeSelect(ViewMode.PATH)}
+                    onCreatePath={() => handleModeSelect(ViewMode.PATH)}
                     onRecreatePath={handleRecreatePath}
                   />
                 </div>
@@ -885,7 +885,7 @@ export default function App() {
             </div>
             <MyPaths 
               onContinuePath={handleContinuePath} 
-              onClose={() => handleModeSelect(ViewMode.PATH)}
+              onCreatePath={() => handleModeSelect(ViewMode.PATH)}
               onRecreatePath={handleRecreatePath}
             />
           </div>

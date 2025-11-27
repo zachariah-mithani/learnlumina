@@ -4,11 +4,11 @@ import { MapIcon, ArrowRightIcon, PlayCircleIcon } from './Icons';
 
 interface MyPathsProps {
   onContinuePath: (pathId: number) => void;
-  onClose: () => void;
+  onCreatePath: () => void;
   onRecreatePath?: (topic: string, existingPathId: number) => void;
 }
 
-export const MyPaths: React.FC<MyPathsProps> = ({ onContinuePath, onClose, onRecreatePath }) => {
+export const MyPaths: React.FC<MyPathsProps> = ({ onContinuePath, onCreatePath, onRecreatePath }) => {
   const [paths, setPaths] = useState<SavedPath[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -110,7 +110,11 @@ export const MyPaths: React.FC<MyPathsProps> = ({ onContinuePath, onClose, onRec
         <h3 className="text-xl font-bold text-white mb-2">No Learning Paths Yet</h3>
         <p className="text-gray-500 font-mono text-sm mb-6">Start a learning path to track your progress</p>
         <button
-          onClick={onClose}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onCreatePath();
+          }}
           className="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-black font-bold rounded-lg transition-colors uppercase tracking-wider text-sm"
         >
           Create Your First Path
