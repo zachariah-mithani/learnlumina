@@ -4,7 +4,8 @@ import { fetchQuickResources, fetchLearningPath, fetchSearchSuggestions } from '
 import { saveLearningPath, getPathWithProgress, PathWithProgress } from './services/pathService';
 import {
   SparklesIcon, ZapIcon, MapIcon,
-  ArrowRightIcon, PlayCircleIcon, BookOpenIcon, SearchIcon, PenIcon, UserIcon
+  ArrowRightIcon, PlayCircleIcon, BookOpenIcon, SearchIcon, PenIcon, UserIcon,
+  MicIcon, ExternalLinkIcon
 } from './components/Icons';
 import { useAuth } from './contexts/AuthContext';
 import { AuthModal, UserMenu } from './components/AuthModal';
@@ -193,58 +194,66 @@ const StageNode: React.FC<{ stage: PathStage, index: number, isLast: boolean }> 
         </div>
 
         {/* Branching Nodes Container */}
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-4xl relative">
-          {/* Sub-topic Nodes */}
-          {stage.keyTopics.map((topic, i) => (
-            <div key={i} className="group relative flex flex-col items-center">
-              {/* Visual Connector Line for Desktop */}
-              <div className="hidden md:block absolute -top-4 left-1/2 -translate-x-1/2 w-0.5 h-4 bg-emerald-500/20"></div>
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl relative">
+          {/* Sub-topic Nodes with Resources */}
+          {stage.keyTopics.map((topic, i) => {
+            const topicName = typeof topic === 'string' ? topic : topic.name;
+            const resource = typeof topic === 'object' ? topic.resource : null;
+            const getResourceIcon = (type: string) => {
+              switch(type) {
+                case 'Video': return <PlayCircleIcon className="w-4 h-4" />;
+                case 'Podcast': return <MicIcon className="w-4 h-4" />;
+                default: return <BookOpenIcon className="w-4 h-4" />;
+              }
+            };
+            const getResourceColor = (type: string) => {
+              switch(type) {
+                case 'Video': return 'bg-red-500/10 text-red-400 border-red-500/20';
+                case 'Podcast': return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
+                case 'Course': return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+                default: return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+              }
+            };
+            
+            return (
+              <div key={i} className="group relative flex flex-col">
+                {/* Visual Connector Line for Desktop */}
+                <div className="hidden md:block absolute -top-4 left-1/2 -translate-x-1/2 w-0.5 h-4 bg-emerald-500/20"></div>
 
-              <div className="w-full bg-focus-dim border border-emerald-500/10 rounded-md p-4 hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-all cursor-default">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500/50 group-hover:bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></span>
-                  <span className="text-[10px] text-emerald-500/40 font-mono">NODE {index + 1}.{i + 1}</span>
+                {/* Topic Card */}
+                <div className="w-full bg-focus-dim border border-emerald-500/10 rounded-md p-4 hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500/50 group-hover:bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></span>
+                    <span className="text-[10px] text-emerald-500/40 font-mono">NODE {index + 1}.{i + 1}</span>
+                  </div>
+                  <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors block mb-3">{topicName}</span>
+                  
+                  {/* Resource Link */}
+                  {resource && (
+                    <a
+                      href={resource.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`flex items-center gap-2 p-2 rounded border ${getResourceColor(resource.type)} hover:opacity-80 transition-all`}
+                    >
+                      <div className="shrink-0">
+                        {getResourceIcon(resource.type)}
+                      </div>
+                      <div className="flex-grow min-w-0">
+                        <div className="text-xs font-medium text-gray-200 truncate">{resource.title}</div>
+                        <div className="flex items-center gap-2 text-[10px] text-gray-500 font-mono mt-0.5">
+                          <span>{resource.type}</span>
+                          <span>•</span>
+                          <span>{resource.durationMin}m</span>
+                        </div>
+                      </div>
+                      <ExternalLinkIcon className="w-3 h-3 text-gray-500 shrink-0" />
+                    </a>
+                  )}
                 </div>
-                <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">{topic}</span>
               </div>
-            </div>
-          ))}
-
-          {/* Recommended Resources for this Stage */}
-          {stage.resources && stage.resources.length > 0 && (
-            <div className="md:col-span-2 lg:col-span-3 mt-6">
-              <div className="text-[10px] text-emerald-500/60 font-mono tracking-[0.2em] mb-3 uppercase text-center">
-                Recommended Resources
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {stage.resources.map((res, rIdx) => (
-                  <a
-                    key={rIdx}
-                    href={res.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-start p-3 rounded-md bg-focus-base border border-emerald-500/20 hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all group/res"
-                  >
-                    <div className={`mt-1 w-8 h-8 rounded flex items-center justify-center shrink-0 mr-3 
-                      ${res.type === 'Video' ? 'bg-red-500/10 text-red-400' : 'bg-blue-500/10 text-blue-400'}`}>
-                      {res.type === 'Video' ? <PlayCircleIcon className="w-4 h-4" /> : <BookOpenIcon className="w-4 h-4" />}
-                    </div>
-                    <div className="flex-grow min-w-0">
-                      <div className="flex justify-between items-start">
-                        <h5 className="text-sm font-bold text-gray-200 group-hover/res:text-emerald-300 truncate pr-2">{res.title}</h5>
-                        <span className="text-[10px] text-gray-500 font-mono whitespace-nowrap">{res.durationMin}m</span>
-                      </div>
-                      <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">{res.description}</p>
-                      <div className="flex items-center mt-2 text-[10px] text-gray-600 font-mono">
-                        <span className="mr-2">{res.views}</span>
-                        <span>{res.publishedDate}</span>
-                      </div>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
+            );
+          })}
 
           {/* Project Node (Spans full width or stands out) */}
           <div className="md:col-span-2 lg:col-span-3 mt-4 flex justify-center">

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { PathStage, Resource } from '../types';
+import { PathStage } from '../types';
 import { updatePathProgress, PathWithProgress, NewAchievement } from '../services/pathService';
-import { PenIcon, ArrowRightIcon, PlayCircleIcon, BookOpenIcon } from './Icons';
+import { PenIcon, ArrowRightIcon, PlayCircleIcon, BookOpenIcon, MicIcon, ExternalLinkIcon } from './Icons';
 
 interface ProgressLearningTreeProps {
   pathId: number;
@@ -169,75 +169,93 @@ export const ProgressLearningTree: React.FC<ProgressLearningTreeProps> = ({
                   </p>
                 </div>
 
-                {/* Topics with checkboxes */}
-                <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-4xl relative">
+                {/* Topics with checkboxes and resources */}
+                <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl relative">
                   {stage.keyTopics.map((topic, topicIndex) => {
+                    const topicName = typeof topic === 'string' ? topic : topic.name;
+                    const resource = typeof topic === 'object' ? topic.resource : null;
                     const isCompleted = isItemCompleted(stageIndex, 'topic', topicIndex);
                     const isUpdatingThis = updating === `${stageIndex}-topic-${topicIndex}`;
 
+                    const getResourceIcon = (type: string) => {
+                      switch(type) {
+                        case 'Video': return <PlayCircleIcon className="w-4 h-4" />;
+                        case 'Podcast': return <MicIcon className="w-4 h-4" />;
+                        default: return <BookOpenIcon className="w-4 h-4" />;
+                      }
+                    };
+                    const getResourceColor = (type: string) => {
+                      switch(type) {
+                        case 'Video': return 'bg-red-500/10 text-red-400 border-red-500/20';
+                        case 'Podcast': return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
+                        case 'Course': return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+                        default: return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+                      }
+                    };
+
                     return (
-                      <button
+                      <div
                         key={topicIndex}
-                        onClick={() => handleToggleProgress(stageIndex, 'topic', topicIndex)}
-                        disabled={isUpdatingThis}
-                        className={`group relative flex items-center w-full bg-focus-dim border rounded-md p-4 transition-all text-left ${
+                        className={`group relative w-full bg-focus-dim border rounded-md p-4 transition-all ${
                           isCompleted 
                             ? 'border-emerald-500/50 bg-emerald-500/10' 
                             : 'border-emerald-500/10 hover:border-emerald-500/40 hover:bg-emerald-500/5'
                         }`}
                       >
-                        {/* Custom checkbox */}
-                        <div className={`w-5 h-5 rounded border-2 mr-3 flex items-center justify-center transition-all shrink-0 ${
-                          isCompleted 
-                            ? 'border-emerald-500 bg-emerald-500' 
-                            : 'border-emerald-500/30 group-hover:border-emerald-500/60'
-                        }`}>
-                          {isUpdatingThis ? (
-                            <div className="w-3 h-3 border border-black border-t-transparent rounded-full animate-spin" />
-                          ) : isCompleted ? (
-                            <svg className="w-3 h-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                            </svg>
-                          ) : null}
-                        </div>
+                        {/* Topic header with checkbox */}
+                        <button
+                          onClick={() => handleToggleProgress(stageIndex, 'topic', topicIndex)}
+                          disabled={isUpdatingThis}
+                          className="flex items-center w-full text-left mb-3"
+                        >
+                          {/* Custom checkbox */}
+                          <div className={`w-5 h-5 rounded border-2 mr-3 flex items-center justify-center transition-all shrink-0 ${
+                            isCompleted 
+                              ? 'border-emerald-500 bg-emerald-500' 
+                              : 'border-emerald-500/30 group-hover:border-emerald-500/60'
+                          }`}>
+                            {isUpdatingThis ? (
+                              <div className="w-3 h-3 border border-black border-t-transparent rounded-full animate-spin" />
+                            ) : isCompleted ? (
+                              <svg className="w-3 h-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                              </svg>
+                            ) : null}
+                          </div>
 
-                        <span className={`text-sm font-medium transition-colors ${
-                          isCompleted ? 'text-emerald-300 line-through opacity-70' : 'text-gray-300 group-hover:text-white'
-                        }`}>
-                          {topic}
-                        </span>
-                      </button>
-                    );
-                  })}
+                          <span className={`text-sm font-medium transition-colors ${
+                            isCompleted ? 'text-emerald-300 line-through opacity-70' : 'text-gray-300 group-hover:text-white'
+                          }`}>
+                            {topicName}
+                          </span>
+                        </button>
 
-                  {/* Resources */}
-                  {stage.resources && stage.resources.length > 0 && (
-                    <div className="md:col-span-2 lg:col-span-3 mt-6">
-                      <div className="text-[10px] text-emerald-500/60 font-mono tracking-[0.2em] mb-3 uppercase text-center">
-                        Recommended Resources
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {stage.resources.map((res, rIdx) => (
+                        {/* Resource link */}
+                        {resource && (
                           <a
-                            key={rIdx}
-                            href={res.url}
+                            href={resource.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-start p-3 rounded-md bg-focus-base border border-emerald-500/20 hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all group/res"
+                            className={`flex items-center gap-2 p-2 rounded border ${getResourceColor(resource.type)} hover:opacity-80 transition-all`}
+                            onClick={(e) => e.stopPropagation()}
                           >
-                            <div className={`mt-1 w-8 h-8 rounded flex items-center justify-center shrink-0 mr-3 
-                              ${res.type === 'Video' ? 'bg-red-500/10 text-red-400' : 'bg-blue-500/10 text-blue-400'}`}>
-                              {res.type === 'Video' ? <PlayCircleIcon className="w-4 h-4" /> : <BookOpenIcon className="w-4 h-4" />}
+                            <div className="shrink-0">
+                              {getResourceIcon(resource.type)}
                             </div>
                             <div className="flex-grow min-w-0">
-                              <h5 className="text-sm font-bold text-gray-200 group-hover/res:text-emerald-300 truncate">{res.title}</h5>
-                              <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">{res.description}</p>
+                              <div className="text-xs font-medium text-gray-200 truncate">{resource.title}</div>
+                              <div className="flex items-center gap-2 text-[10px] text-gray-500 font-mono mt-0.5">
+                                <span>{resource.type}</span>
+                                <span>•</span>
+                                <span>{resource.durationMin}m</span>
+                              </div>
                             </div>
+                            <ExternalLinkIcon className="w-3 h-3 text-gray-500 shrink-0" />
                           </a>
-                        ))}
+                        )}
                       </div>
-                    </div>
-                  )}
+                    );
+                  })}
 
                   {/* Project */}
                   <div className="md:col-span-2 lg:col-span-3 mt-4 flex justify-center">

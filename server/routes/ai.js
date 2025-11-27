@@ -162,23 +162,33 @@ router.post('/learning-path', pathGenerationLimiter, validateTopic, async (req, 
   - If the topic is BROAD (e.g., "Computer Science", "History", "Physics"), generate 5-7 stages to cover it properly.
   - If the topic is SPECIFIC (e.g., "React Hooks", "Making Sourdough"), generate 3-4 stages.
   
-  For EACH stage, you MUST provide 2-3 specific learning resources (Videos or Courses).
+  CRITICAL: Each keyTopic MUST have ONE specific learning resource (Video, Course, Article, or Podcast).
 
   Return ONLY a valid JSON array of objects, each containing:
   - stageName (string): e.g., "Foundations", "Core Concepts", "Advanced Techniques"
   - description (string): brief description of this stage
   - goal (string): learning goal for this stage
-  - keyTopics (array of strings): 3-5 key topics to learn
+  - keyTopics (array of objects): 3-5 key topics, EACH with its own resource:
+    - name (string): the topic name (e.g., "History of Robotics")
+    - resource (object): ONE learning resource for THIS specific topic:
+      - title: Resource Title (be specific, e.g., "MIT OpenCourseWare: Introduction to Robotics")
+      - type: "Video" or "Course" or "Article" or "Podcast"
+      - description: Brief reason why this resource is perfect for learning this topic
+      - url: "https://actual-url.com" (Use real, stable URLs - YouTube, Coursera, edX, MIT OCW, Khan Academy, MDN, Wikipedia, official docs)
+      - views: "1M views" (estimate)
+      - viewCount: 1000000 (estimate number)
+      - publishedDate: "2024-01-01" (estimate)
+      - durationMin: 15 (estimate in minutes)
   - suggestedProject (string): a hands-on project for this stage
-  - resources (array of objects): 2-3 specific resources for this stage.
-    - title: Resource Title
-    - type: "Video" or "Course"
-    - description: Brief reason why this is good
-    - url: "https://actual-url.com" (Use real, stable URLs like Coursera, edX, YouTube)
-    - views: "1M views" (estimate)
-    - viewCount: 1000000 (estimate number)
-    - publishedDate: "2024-01-01" (estimate)
-    - durationMin: 10 (estimate)
+
+  RESOURCE URL RULES:
+  - YouTube: https://www.youtube.com/watch?v=VIDEO_ID
+  - Coursera: https://www.coursera.org/learn/COURSE_NAME
+  - edX: https://www.edx.org/course/COURSE_NAME
+  - Khan Academy: https://www.khanacademy.org/...
+  - Wikipedia: https://en.wikipedia.org/wiki/TOPIC
+  - MDN: https://developer.mozilla.org/en-US/docs/...
+  - Official documentation sites
 
   Return ONLY the JSON array, no other text.`;
 

@@ -17,7 +17,7 @@ export enum ResourceType {
 
 export interface Resource {
   title: string;
-  type: string; // "Video", "Article", "Course"
+  type: string; // "Video", "Article", "Course", "Podcast"
   description: string;
   url: string;
 
@@ -28,13 +28,17 @@ export interface Resource {
   durationMin: number; // Minutes
 }
 
+export interface KeyTopic {
+  name: string;
+  resource: Resource;
+}
+
 export interface PathStage {
   stageName: string;
   description: string;
   goal: string;
-  keyTopics: string[];
+  keyTopics: KeyTopic[]; // Each topic has its own resource
   suggestedProject: string;
-  resources: Resource[]; // Recommended resources for this stage
 }
 
 export interface AppState {
