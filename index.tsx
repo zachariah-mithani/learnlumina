@@ -14,7 +14,7 @@ root.render(
   <React.StrictMode>
     <ErrorBoundary>
       <AuthProvider>
-        <App />
+    <App />
       </AuthProvider>
     </ErrorBoundary>
   </React.StrictMode>

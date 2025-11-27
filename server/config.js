@@ -20,7 +20,7 @@ export const config = {
   // CORS origins
   corsOrigins: isDev 
     ? ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000']
-    : (process.env.CORS_ORIGINS || 'https://learnlumina.xyz,https://www.learnlumina.xyz').split(',').filter(Boolean),
+    : (process.env.CORS_ORIGINS || 'https://attentiolearn.xyz,https://www.attentiolearn.xyz').split(',').filter(Boolean),
   
   // JWT
   jwtSecret: process.env.JWT_SECRET || (isDev ? 'attentio-dev-secret' : undefined),

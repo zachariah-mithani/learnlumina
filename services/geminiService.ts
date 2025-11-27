@@ -62,7 +62,7 @@ export const fetchQuickResources = async (topic: string): Promise<Resource[]> =>
         publishedDate: video.publishedAt,
         durationMin: parseDuration(video.duration),
       }));
-      resources.push(...videoResources);
+    resources.push(...videoResources);
     }
   } catch (error) {
     console.warn('YouTube fetch failed:', error);
