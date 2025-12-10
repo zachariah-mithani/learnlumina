@@ -349,8 +349,29 @@ Return ONLY the JSON object, no markdown, no explanation.`;
       return res.status(500).json({ error: 'Empty response from AI' });
     }
     
-    const jsonText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    const rawPath = JSON.parse(jsonText);
+    // Clean up the response - remove markdown code blocks and extra whitespace
+    let jsonText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    
+    // Try to extract JSON if there's extra text before/after
+    const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      jsonText = jsonMatch[0];
+    }
+    
+    let rawPath;
+    try {
+      rawPath = JSON.parse(jsonText);
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError.message);
+      console.error('Raw text (first 500 chars):', jsonText.substring(0, 500));
+      return res.status(500).json({ error: 'AI returned invalid response. Please try again.' });
+    }
+    
+    // Validate the structure
+    if (!rawPath.units || !Array.isArray(rawPath.units) || rawPath.units.length === 0) {
+      console.error('Invalid path structure:', rawPath);
+      return res.status(500).json({ error: 'AI returned incomplete data. Please try again.' });
+    }
     
     // Step 2: Fetch real YouTube videos for each lesson
     let totalLessons = 0;

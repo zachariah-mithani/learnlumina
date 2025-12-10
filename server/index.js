@@ -13,6 +13,9 @@ validateConfig();
 
 const app = express();
 
+// Trust proxy - required for rate limiting behind Render/Vercel/etc
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(cors({
   origin: config.corsOrigins,
